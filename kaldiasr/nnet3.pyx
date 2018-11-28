@@ -81,7 +81,7 @@ cdef class KaldiNNet3OnlineModel:
                         int    num_gselect              = 5,
                         float  min_post                 = 0.025,
                         float  posterior_scale          = 0.1,
-                        int    max_count                = 0,
+                        int    max_count                = 100,
                         int    online_ivector_period    = 10):
 
         self.modeldir         = _text(modeldir)
@@ -90,12 +90,12 @@ cdef class KaldiNNet3OnlineModel:
         else:
             self.model        = _text(model)
 
-        cdef unicode mfcc_config           = u'%s/conf/mfcc_hires.conf'                  % self.modeldir
-        cdef unicode word_symbol_table     = u'%s/%s/graph/words.txt'                    % (self.modeldir, self.model)
-        cdef unicode model_in_filename     = u'%s/%s/final.mdl'                          % (self.modeldir, self.model)
-        cdef unicode splice_conf_filename  = u'%s/ivectors_test_hires/conf/splice.conf'  % self.modeldir
-        cdef unicode fst_in_str            = u'%s/%s/graph/HCLG.fst'                     % (self.modeldir, self.model)
-        cdef unicode align_lex_filename    = u'%s/%s/graph/phones/align_lexicon.int'     % (self.modeldir, self.model)
+        cdef unicode mfcc_config           = u'%s/conf/mfcc.conf'                  % self.modeldir
+        cdef unicode word_symbol_table     = u'%s/graph_sw1_tg/words.txt'                    % (self.modeldir)
+        cdef unicode model_in_filename     = u'%s/final.mdl'                          % (self.modeldir)
+        cdef unicode splice_conf_filename  = u'%s/conf/splice.conf'  % self.modeldir
+        cdef unicode fst_in_str            = u'%s/graph_sw1_tg/HCLG.fst'                     % (self.modeldir)
+        cdef unicode align_lex_filename    = u'%s/graph_sw1_tg/phones/align_lexicon.int'     % (self.modeldir)
 
         #
         # make sure all model files required exist
@@ -107,25 +107,6 @@ cdef class KaldiNNet3OnlineModel:
             if not os.access(conff.encode('utf8'), os.R_OK):
                 raise Exception ('%s is not readable' % conff) 
 
-        #
-        # generate ivector_extractor.conf
-        #
-
-        self.ie_conf_f = NamedTemporaryFile(prefix=u'ivector_extractor_', suffix=u'.conf', delete=True)
-
-        self.ie_conf_f.write((u"--cmvn-config=%s/conf/online_cmvn.conf\n" % self.modeldir).encode('utf8'))
-        self.ie_conf_f.write((u"--ivector-period=%d\n" % online_ivector_period).encode('utf8'))
-        self.ie_conf_f.write((u"--splice-config=%s\n" % splice_conf_filename).encode('utf8'))
-        self.ie_conf_f.write((u"--lda-matrix=%s/extractor/final.mat\n" % self.modeldir).encode('utf8'))
-        self.ie_conf_f.write((u"--global-cmvn-stats=%s/extractor/global_cmvn.stats\n" % self.modeldir).encode('utf8'))
-        self.ie_conf_f.write((u"--diag-ubm=%s/extractor/final.dubm\n" % self.modeldir).encode('utf8'))
-        self.ie_conf_f.write((u"--ivector-extractor=%s/extractor/final.ie\n" % self.modeldir).encode('utf8'))
-        self.ie_conf_f.write((u"--num-gselect=%d\n" % num_gselect).encode('utf8'))
-        self.ie_conf_f.write((u"--min-post=%f\n" % min_post).encode('utf8'))
-        self.ie_conf_f.write((u"--posterior-scale=%f\n" % posterior_scale).encode('utf8'))
-        self.ie_conf_f.write((u"--max-remembered-frames=1000\n").encode('utf8'))
-        self.ie_conf_f.write((u"--max-count=%d\n" % max_count).encode('utf8'))
-        self.ie_conf_f.flush()
 
         #
         # instantiate our C++ wrapper class
@@ -141,7 +122,7 @@ cdef class KaldiNNet3OnlineModel:
                                                          model_in_filename.encode('utf8'), 
                                                          fst_in_str.encode('utf8'), 
                                                          mfcc_config.encode('utf8'),
-                                                         self.ie_conf_f.name.encode('utf8'),
+                                                         ("%s/conf/ivector_extractor.conf" % self.modeldir).encode('utf8'),
                                                          align_lex_filename.encode('utf8'))
 
     def __dealloc__(self):

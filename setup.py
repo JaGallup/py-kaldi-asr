@@ -50,7 +50,12 @@ def find_dependencies():
         kw.setdefault('libraries', []).append('%s/f77blas.so.3' % libdir)
         kw.setdefault('libraries', []).append('%s/lapack_atlas.so.3' % libdir)
         
-        if not os.path.isdir('/usr/include/atlas'):
+        include_found = False
+        for libdir in ['usr/include/atlas', 'usr/include/x86_64-linux-gnu/atlas']:
+            if not os.path.isdir('/usr/include/atlas'):
+                include_found = True
+                break
+        if not include_found:
             raise Exception ('Failed to find atlas includes your system.')
         
         kw.setdefault('include_dirs', []).append('/usr/include/atlas')
