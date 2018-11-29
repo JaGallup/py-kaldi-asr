@@ -52,7 +52,7 @@ def find_dependencies():
         
         include_found = False
         for libdir in ['usr/include/atlas', 'usr/include/x86_64-linux-gnu/atlas']:
-            if not os.path.isdir('/usr/include/atlas'):
+            if os.path.isdir('/usr/include/atlas'):
                 include_found = True
                 break
         if not include_found:
