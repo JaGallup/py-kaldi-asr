@@ -77,7 +77,7 @@ kaldi_root=/opt/kaldi
 Name: kaldi-asr
 Description: kaldi-asr speech recognition toolkit
 Version: 5.2
-Requires: atlas
+Requires: blas-atlas
 Libs: -L${kaldi_root}/tools/openfst/lib -L${kaldi_root}/src/lib -lkaldi-decoder -lkaldi-lat -lkaldi-fstext -lkaldi-hmm -lkaldi-feat -lkaldi-transform -lkaldi-gmm -lkaldi-tree -lkaldi-util -lkaldi-matrix -lkaldi-base -lkaldi-nnet3 -lkaldi-online2 -lkaldi-cudamatrix -lkaldi-ivector -lfst
 Cflags: -I${kaldi_root}/src  -I${kaldi_root}/tools/openfst/include
 ```
@@ -90,7 +90,7 @@ ATLAS
 You may need to install ATLAS headers even if you didn't need them to compile Kaldi.
 
 ```
-$ sudo apt install libatlas-dev
+$ sudo apt-get install libatlas-base-dev liblapack-dev libblas-dev
 ```
 
 License
